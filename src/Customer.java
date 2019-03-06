@@ -1,8 +1,13 @@
 public class Customer {
+
+    //fields
+
     private String name;
     private int ID;
     private double balance;
     private String bank;
+
+    // constructor
 
     public Customer(String name, int ID, double balance, String bank) {
         this.name = name;
@@ -10,6 +15,8 @@ public class Customer {
         this.balance = balance;
         this.bank = bank;
     }
+
+    // setters and getters
 
     public String getName() {
         return name;
@@ -41,5 +48,11 @@ public class Customer {
 
     public void setBank(String bank) {
         this.bank = bank;
+    }
+
+    @Override
+    public String toString() {
+        String formattedBalance = String.format("%.02f", this.balance);
+        return this.name + ": Balance $" + formattedBalance;
     }
 }

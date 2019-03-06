@@ -19,5 +19,22 @@ public class DummyATMDemo
         System.out.println("");
         machine1.displayMenu();
 
+//        if (machine1.withdrawal("Alice", 7777, 10.50)) {
+//            System.out.println("cool and good");
+//        } else {
+//            System.out.println("not cool and good");
+//        }
+        machine1.withdrawal("Alice", 7777, 10.50);
+        machine1.withdrawal("Robert", 2323, 10.50);
+        machine1.withdrawal("Alice", 1234, 10000);
+        machine1.withdrawal("Alice", 1234, 10);
+        machine1.withdrawal("Alice", 1234, 2000);
+
+        System.out.println("\n===== Machine Status =====");
+        machine1.status();
+        System.out.println("");
+
+        alice = machine1.getCustomer("i am not alice");
+        System.out.println(alice.getName());
     }
 }
