@@ -1,8 +1,6 @@
 import java.util.ArrayList;
 import java.util.Objects;
 
-//TODO: MAKE JUNIT TEST CASES REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
-
 public class ATM {
 
     // accessible fields
@@ -36,7 +34,15 @@ public class ATM {
         this.location = location;
     }
 
-    //todo: IMPLEMENT
+    public void setATM(int serialNumber, String bankName, String location) {
+        this.serialNumber = serialNumber;
+        this.bankName = bankName;
+        this.location = location;
+    }
+
+    public void setATM(String location) {
+        this.location = location;
+    }
 
     public Customer getCustomer(String name) {
         for (Customer i : customers) {
@@ -47,11 +53,37 @@ public class ATM {
         return null;
     }
 
+    public int getSerialNumber() {
+        return serialNumber;
+    }
 
+    public void setSerialNumber(int serialNumber) {
+        this.serialNumber = serialNumber;
+    }
 
+    public String getBankName() {
+        return bankName;
+    }
 
+    public void setBankName(String bankName) {
+        this.bankName = bankName;
+    }
 
+    public String getLocation() {
+        return location;
+    }
 
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public void setBalance(double balance) {
+        this.balance = balance;
+    }
 
     // public methods with helper functions
 
@@ -62,37 +94,45 @@ public class ATM {
     }
 
     public boolean withdrawal(String name, int ID, double money) {
-        // customer wants to take more money than the ATM possesses.
-        if (money > this.balance) {
+        try {
+            // customer wants to take more money than the ATM possesses
+            // or puts in negative input
+            if (money > getCustomer(name).getBalance() || money > this.balance || money < 0) {
+                System.out.println("Fail – withdrawal");
+                this.numWithdrawalFailures++;
+                return false;
+            }
+        } catch (NullPointerException e) {
             System.out.println("Fail – withdrawal");
             this.numWithdrawalFailures++;
             return false;
         }
 
-        // scanning for customers in arrayList
-        for (Customer i : customers) {
-            if (scan(i, name, ID)) {
-                System.out.println("Succeed – withdrawal");
-                i.setBalance(i.getBalance() + money);
-                this.balance -= money;
-                this.numWithdrawalSuccesses++;
-                return true;
+            // scanning for customers in arrayList
+            for (Customer i : customers) {
+                if (scan(i, name, ID)) {
+                    System.out.println("Succeed – withdrawal");
+                    i.setBalance(i.getBalance() - money);
+                    this.balance -= money;
+                    this.numWithdrawalSuccesses++;
+                    return true;
+                }
             }
+
+            // loop fully runs, and no valid customers are found.
+
+            System.out.println("Fail – withdrawal");
+
+            this.numWithdrawalFailures++;
+            return false;
         }
 
-        // loop fully runs, and no valid customers are found.
-
-        System.out.println("Fail – withdrawal");
-
-        this.numWithdrawalFailures++;
-        return false;
-    }
-
-    // deposit() function TODO: implement.
+    // deposit() function
 
     public boolean deposit(String name, int ID, double money) {
-        // customer wants to put more money than they possesses.
-        if (money > getCustomer(name).getBalance()) {
+        // customer wants to put more money than they possesses
+        // or inputs negative money
+        if (money < 0) {
             System.out.println("Fail – deposit");
             this.numDepositFailures++;
             return false;
@@ -102,7 +142,7 @@ public class ATM {
         for (Customer i : customers) {
             if (scan(i, name, ID)) {
                 System.out.println("Succeed – deposit");
-                i.setBalance(i.getBalance() - money);
+                i.setBalance(i.getBalance() + money);
                 this.balance += money;
                 this.numDepositSuccesses++;
                 return true;
@@ -118,12 +158,18 @@ public class ATM {
     }
 
 
-    // transfer() function TODO: IMPLEMENT
+    // transfer() function
 
     public boolean transfer(String giverName, int giverID, double money, String receiverName, int receiverID) {
-        // customer wants to put give money than they possesses.
-
-        if (money > getCustomer(giverName).getBalance()) {
+        // customer wants to put give money than they possesses
+        // or negative input
+        try {
+            if (money > getCustomer(giverName).getBalance() || money < 0) {
+                System.out.println("Fail – transfer");
+                this.numTransferFailures++;
+                return false;
+            }
+        } catch (NullPointerException e) {
             System.out.println("Fail – transfer");
             this.numTransferFailures++;
             return false;
@@ -203,15 +249,23 @@ public class ATM {
 
     // addFund()
 
-    public void addFund(int cash) {
-        this.balance += cash;
+    public void addFund(double cash) {
+        if (cash > 0) {
+            this.balance += cash;
+        } else if (cash == 0){
+            System.out.println("ATM gained no money.");
+            return;
+        } else {
+            System.out.println("Please do not steal.");
+            return;
+        }
     }
 
     // isCustomer()
 
     public boolean isCustomer(String name) {
         for (Customer i : customers) {
-            if (i.getName().equals(name)) {
+            if (i.getName().equals(name) && i.getBank().equals(this.bankName)) {
                 return true;
             }
         }
@@ -239,7 +293,7 @@ public class ATM {
         this.numTransferFailures = 0;
     }
 
-    private void setCustomers() {
+    public void setCustomers() {
         if (!this.customersLoaded) {
             customers.add(new Customer("Alice", 1234, 5000, "OtterUnion"));
             customers.add(new Customer("Tom", 2000, 200, "OtterUnion"));
@@ -267,8 +321,16 @@ public class ATM {
         setCustomers();
     }
 
+    public ATM(int serialNumber, String bankName) {
+        this(serialNumber, bankName, "UNKNOWN");
+    }
+
     public ATM(String bankName) {
         this(0, bankName, "UNKNOWN");
+    }
+
+    public ATM() {
+        this(0, "UNKNOWN", "UNKNOWN");
     }
 
 
