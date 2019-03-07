@@ -57,15 +57,21 @@ public class ATM {
 
     // withdrawal() function
 
+    private boolean scan(Customer i, String name, int ID) {
+        return (i.getName().equals(name) && i.getID() == ID & i.getBank().equals(this.bankName));
+    }
+
     public boolean withdrawal(String name, int ID, double money) {
-        if (money > this.balance) { // customer wants to take more money than the ATM possesses.
+        // customer wants to take more money than the ATM possesses.
+        if (money > this.balance) {
             System.out.println("Fail – withdrawal");
             this.numWithdrawalFailures++;
             return false;
         }
 
+        // scanning for customers in arrayList
         for (Customer i : customers) {
-            if (i.getName().equals(name) && i.getID() == ID & i.getBank().equals(this.bankName)) {
+            if (scan(i, name, ID)) {
                 System.out.println("Succeed – withdrawal");
                 i.setBalance(i.getBalance() + money);
                 this.balance -= money;
@@ -85,14 +91,16 @@ public class ATM {
     // deposit() function TODO: implement.
 
     public boolean deposit(String name, int ID, double money) {
-        if (money > getCustomer(name).getBalance()) { // customer wants to put more money than they possesses.
+        // customer wants to put more money than they possesses.
+        if (money > getCustomer(name).getBalance()) {
             System.out.println("Fail – deposit");
             this.numDepositFailures++;
             return false;
         }
 
+        // scanning for customers in arrayList
         for (Customer i : customers) {
-            if (i.getName().equals(name) && i.getID() == ID & i.getBank().equals(this.bankName)) {
+            if (scan(i, name, ID)) {
                 System.out.println("Succeed – deposit");
                 i.setBalance(i.getBalance() - money);
                 this.balance += money;
@@ -113,8 +121,46 @@ public class ATM {
     // transfer() function TODO: IMPLEMENT
 
     public boolean transfer(String giverName, int giverID, double money, String receiverName, int receiverID) {
+        // customer wants to put give money than they possesses.
 
-        return false;
+        if (money > getCustomer(giverName).getBalance()) {
+            System.out.println("Fail – transfer");
+            this.numTransferFailures++;
+            return false;
+        }
+
+        // assume no valid giver and receiver until proven otherwise
+
+        boolean validGiver = false;
+        boolean validReceiver = false;
+
+        Customer giver = null;
+        Customer receiver = null;
+
+        // scanning for giver and receiver in arrayList
+
+        for (Customer i : customers) {
+            if (scan(i, giverName, giverID)) {
+                giver = i;
+                validGiver = true;
+            }
+            if (scan(i, receiverName, receiverID)) {
+                receiver = i;
+                validReceiver = true;
+            }
+        }
+
+        if (!(validGiver && validReceiver)) {
+            System.out.println("Fail – transfer");
+            this.numTransferFailures++;
+            return false;
+        }
+
+        giver.setBalance(giver.getBalance() - money);
+        receiver.setBalance(receiver.getBalance() + money);
+        this.numTransferSuccesses++;
+        System.out.println("Succeed – transfer");
+        return true;
     }
 
     // displayMenu()
@@ -149,16 +195,27 @@ public class ATM {
     public void status() {
         int numTransactions = addTransactions();
         System.out.println(this.toString());
-        System.out.println("    " + numTransactions + " Transactions so far");
-        formatPrint("Withdrawal", this.numWithdrawalSuccesses, this.numWithdrawalFailures);
-        formatPrint("Deposit", this.numDepositSuccesses, this.numDepositFailures);
-        formatPrint("Transfer", this.numTransferSuccesses, this.numTransferFailures);
+        System.out.println("" + numTransactions + " Transactions so far");
+        formatPrint("    Withdrawal", this.numWithdrawalSuccesses, this.numWithdrawalFailures);
+        formatPrint("    Deposit", this.numDepositSuccesses, this.numDepositFailures);
+        formatPrint("    Transfer", this.numTransferSuccesses, this.numTransferFailures);
     }
 
     // addFund()
 
     public void addFund(int cash) {
         this.balance += cash;
+    }
+
+    // isCustomer()
+
+    public boolean isCustomer(String name) {
+        for (Customer i : customers) {
+            if (i.getName().equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
@@ -196,6 +253,7 @@ public class ATM {
             customers.add(new Customer("Rebecca", 8080, 555.55, "BOA"));
             this.customersLoaded = true;
         }
+        return;
     }
 
     // constructors
